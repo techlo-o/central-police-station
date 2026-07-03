@@ -263,13 +263,23 @@ const App={
 
     state:{
 
-        page:"dashboard",
+    page:"dashboard",
 
-        responses:[],
+    chat:[
 
-        report:null
+        {
 
-    },
+            role:"assistant",
+
+            text:"Hello. I'm CyberShield Assist.\nPlease describe what happened."
+
+        }
+
+    ],
+
+    report:null
+
+},
 
     navigate(page){
 
@@ -343,31 +353,26 @@ const App={
 
             case "interview":
 
-                target.innerHTML=`
+    target.innerHTML=`
 
-                <div class="card">
+    <div class="card">
 
-                    <h2>Describe the Incident</h2>
+        <h2>Cyber Incident Interview</h2>
 
-                    <textarea
+        <textarea
+            id="incident"
+            placeholder="Describe exactly what happened...">
+        </textarea>
 
-                        id="incident"
+        <button onclick="Interview.submit()">
+            START INTERVIEW
+        </button>
 
-                        placeholder="Describe exactly what happened...">
+    </div>
 
-                    </textarea>
+    `;
 
-                    <button onclick="Interview.submit()">
-
-                        ANALYZE INCIDENT
-
-                    </button>
-
-                </div>
-
-                `;
-
-            break;
+break;
 
             case "report":
 
@@ -436,12 +441,18 @@ PRINT REPORT
             return;
         }
 
+        
+
         const summary = input.value.trim();
 
-        if (summary === "") {
-            alert("Please describe the cyber incident.");
-            return;
-        }
+if (summary === "") {
+    alert("Please describe the cyber incident.");
+    return;
+}
+        App.state.chat.push({
+    role: "user",
+    text: summary
+});
 
         App.setStatus("ANALYZING INCIDENT...");
 
@@ -454,29 +465,42 @@ PRINT REPORT
 
         try {
 
-            const form = new URLSearchParams();
-
-form.append("summary", summary);
+            
 
 const response = await fetch(CONFIG.API_URL, {
     method: "POST",
-    body: form
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        action: "continue",
+        chat: App.state.chat
+    })
 });
 
             const result = await response.json();
 
-            if (!result.success) {
-                throw new Error(result.error);
-            }
+            if (result.complete) {
 
-            App.state.report = result;
+    App.state.report = result;
 
-            App.setStatus("ANALYSIS COMPLETE");
+    App.setStatus("INTERVIEW COMPLETE");
 
-            App.navigate("report");
+    App.navigate("report");
 
-        }
+} else {
 
+    App.state.chat.push({
+        role: "assistant",
+        text: result.question
+    });
+
+    App.setStatus("AWAITING USER RESPONSE");
+
+    Chat.render();
+
+}
+}
         catch (err) {
 
             console.error(err);
