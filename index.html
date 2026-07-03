@@ -452,7 +452,7 @@ PRINT REPORT
 
         
 
-        const summary = input.value.trim();
+        const chat = JSON.parse(e.parameter.chat || "[]");
 
 if (summary === "") {
     alert("Please describe the cyber incident.");
@@ -462,6 +462,7 @@ if (summary === "") {
     role: "user",
     text: summary
 });
+        input.value = "";
 
         App.setStatus("ANALYZING INCIDENT...");
 
@@ -476,20 +477,25 @@ if (summary === "") {
 
             
 
-const response = await fetch(CONFIG.API_URL, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        action: "continue",
-        chat: App.state.chat
-    })
+const form = new URLSearchParams();
+
+form.append(
+    "chat",
+    JSON.stringify(App.state.chat)
+);
+
+const response = await fetch(CONFIG.API_URL,{
+    method:"POST",
+    body:form
 });
 
-            const result = await response.json();
+if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+}
 
-            if (result.complete) {
+const result = await response.json();
+
+            if (result.success) {
 
     App.state.chat.push({
         role: "assistant",
@@ -508,14 +514,7 @@ const response = await fetch(CONFIG.API_URL, {
 
 } else {
 
-    App.state.chat.push({
-        role: "assistant",
-        text: result.question
-    });
-
-    App.setStatus("AWAITING USER RESPONSE");
-
-    App.navigate("interview");
+    throw new Error(result.error || "Analysis failed.");
 
 }
 }
