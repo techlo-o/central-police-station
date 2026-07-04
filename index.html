@@ -34,7 +34,7 @@
             overflow: hidden;
         }
 
-        /* Sidebar Styling matching image_664045.jpg */
+        /* Collapsible Sidebar Styling */
         aside {
             width: 320px;
             background: var(--sidebar-bg);
@@ -45,6 +45,45 @@
             display: flex;
             flex-direction: column;
             position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        /* Closed Sidebar state */
+        body.sidebar-closed aside {
+            width: 0px;
+            padding: 30px 0px;
+            overflow: hidden;
+            border-right-width: 0px;
+            pointer-events: none;
+        }
+
+        /* Sidebar Toggle Control Button */
+        .sidebar-toggle {
+            position: absolute;
+            top: 15px;
+            right: -45px;
+            width: 40px;
+            height: 40px;
+            background: var(--sidebar-bg);
+            border: 2px solid #00f0ff;
+            color: #00f0ff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 0 4px 4px 0;
+            box-shadow: 5px 0 10px rgba(0, 240, 255, 0.15);
+            pointer-events: auto !important; /* Always clickable */
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: #00f0ff;
+            color: #000;
+            box-shadow: 0 0 15px #00f0ff;
         }
 
         .logo-container {
@@ -52,6 +91,7 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 30px;
+            white-space: nowrap;
         }
 
         .logo-icon {
@@ -87,6 +127,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            white-space: nowrap;
         }
 
         .status-online {
@@ -117,6 +158,7 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            white-space: nowrap;
         }
 
         .nav-btn:hover, .nav-btn.active {
@@ -140,6 +182,11 @@
             padding: 40px;
             overflow-y: auto;
             position: relative;
+            transition: padding 0.4s ease;
+        }
+        
+        body.sidebar-closed main {
+            padding-left: 60px; /* Provides uniform cushion padding when sidebar shuts */
         }
 
         .view-header {
@@ -348,7 +395,7 @@
         }
 
         @media print {
-            aside, .btn-primary, .input-container { display: none; }
+            aside, .btn-primary, .input-container, .sidebar-toggle { display: none; }
             body { background: white; color: black; }
             main { padding: 0; }
             .capability-card { border-color: #000; }
@@ -358,6 +405,9 @@
 <body>
 
 <aside>
+    <!-- Toggle tab positioned on the dynamic right outer edge -->
+    <button class="sidebar-toggle" onclick="App.toggleSidebar()" title="Toggle Sidebar">☰</button>
+
     <div class="logo-container">
         <div class="logo-icon"></div>
         <h2>CYBERSHIELD<br>ASSIST</h2>
@@ -381,7 +431,7 @@
 
 <main>
     <div id="view">
-        <!-- Content will dynamically inject here -->
+        <!-- Content injects dynamically here -->
     </div>
 </main>
 
@@ -404,6 +454,10 @@ const App = {
             }
         ],
         report: null
+    },
+
+    toggleSidebar() {
+        document.body.classList.toggle('sidebar-closed');
     },
 
     navigate(page) {
