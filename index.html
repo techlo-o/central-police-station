@@ -971,10 +971,12 @@ const Interview = {
                 const form = new URLSearchParams();
                 form.append("chat", JSON.stringify(App.state.chat));
 
-                const response = await fetch(CONFIG.API_URL, {
-                    method: "POST",
-                    body: form
-                });
+                // In index.html, update the fetch block:
+const response = await fetch(CONFIG.API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat: JSON.stringify(App.state.chat) })
+});
 
                 const textData = await response.text();
                 let result;
