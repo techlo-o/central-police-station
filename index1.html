@@ -1,1 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberShield Assist by KIP</title>
+    <style>
+        :root {
+            --term-green: #39ff14;
+            --term-bg: #030712;
+            --sidebar-bg: rgba(6, 11, 25, 0.95);
+            --card-bg: rgba(10, 25, 47, 0.7);
+            --term-dim: #0f766e;
+            --border-glow: #00ffcc;
+            --text-blue: #5b7fff;
+            --term-red: #ff4b4b;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--term-bg);
+            background-image: 
+                linear-gradient(rgba(0, 255, 204, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 204, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: #e2e8f0;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Collapsible Sidebar Styling */
+        aside {
+            width: 320px;
+            background: var(--sidebar-bg);
+            border: 2px solid #1e293b;
+            border-right: 2px solid #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        body.sidebar-closed aside {
+            width: 0px;
+            padding: 30px 0px;
+            overflow: hidden;
+            border-right-width: 0px;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            top: 15px;
+            right: -45px;
+            width: 40px;
+            height: 40px;
+            background: var(--sidebar-bg);
+            border: 2px solid #00f0ff;
+            color: #00f0ff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 0 4px 4px 0;
+            box-shadow: 5px 0 10px rgba(0, 240, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: #00f0ff;
+            color: #000;
+            box-shadow: 0 0 15px #00f0ff;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            white-space: nowrap;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            border: 2px solid #00f0ff;
+            border-radius: 4px;
+            position: relative;
+            background: linear-gradient(45deg, #0f172a, #1e293b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            flex-shrink: 0;
+        }
+
+        .logo-icon::before {
+            content: '🛡️';
+            font-size: 24px;
+        }
+
+        aside h2 {
+            font-size: 1.1rem;
+            color: #ffffff;
+            font-weight: bold;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .status {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .status-online {
+            color: var(--term-green);
+            font-weight: bold;
+        }
+
+        .status-error {
+            color: var(--term-red);
+            font-weight: bold;
+        }
+
+        .status-cursor {
+            width: 8px;
+            height: 15px;
+            background: var(--term-green);
+            display: inline-block;
+            animation: blink 1s infinite;
+        }
+
+        .nav-btn {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            color: #94a3b8;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 4px;
+            padding: 14px 15px;
+            text-align: left;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            color: var(--term-green);
+            border-color: var(--term-green);
+            background: rgba(57, 255, 20, 0.05);
+            box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.2);
+            padding-left: 20px;
+        }
+
+        .hotline-banner {
+            background: rgba(0, 255, 204, 0.07);
+            border: 2px dashed var(--border-glow);
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
+        }
+
+        .hotline-banner h2 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hotline-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .hotline-card {
+            background: rgba(3, 7, 18, 0.6);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .hotline-card div {
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .hotline-card strong {
+            color: var(--term-green);
+            font-size: 0.95rem;
+        }
+
+        /* Main Workspace Styling */
+        main {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+            transition: padding 0.4s ease;
+            width: 100%;
+        }
+
+        .view-header {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+
+        .view-title {
+            font-size: 2rem;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .capability-card {
+            background: var(--card-bg);
+            border: 2px solid rgba(0, 255, 204, 0.4);
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .capability-card::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; width: 15px; height: 15px;
+            border-top: 3px solid var(--border-glow);
+            border-left: 3px solid var(--border-glow);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--term-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--term-green);
+            background: rgba(0, 255, 140, 0.05);
+            flex-shrink: 0;
+        }
+
+        .card-content h3 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            word-break: break-all;
+        }
+
+        .card-content ul {
+            list-style: none;
+        }
+
+        .card-content li {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-content li::before {
+            content: '✓';
+            color: var(--term-green);
+            font-weight: bold;
+        }
+
+        .action-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 35px;
+        }
+
+        .btn-primary {
+            background: rgba(0, 240, 255, 0.05);
+            color: #00f0ff;
+            border: 2px solid #00f0ff;
+            padding: 16px 40px;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+            transition: all 0.3s ease;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .btn-primary:hover {
+            background: #00f0ff;
+            color: #000000;
+            box-shadow: 0 0 25px #00f0ff;
+            transform: scale(1.02);
+        }
+
+        .terminal-window {
+            background: rgba(5, 10, 20, 0.85);
+            border: 1px solid #334155;
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .terminal-header {
+            background: #0f172a;
+            padding: 10px 20px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 8px;
+            color: #475569;
+            font-size: 0.8rem;
+        }
+
+        .terminal-body {
+            padding: 20px;
+            min-height: 180px;
+        }
+
+        .chat-line {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            word-wrap: break-word;
+        }
+
+        .chat-line.user {
+            color: var(--text-blue);
+        }
+
+        .chat-line.assistant {
+            color: var(--term-green);
+        }
+
+        .chat-line.system-error {
+            color: var(--term-red);
+            border-left: 3px solid var(--term-red);
+            padding-left: 10px;
+            background: rgba(255, 75, 75, 0.05);
+            border-radius: 0 4px 4px 0;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        .input-container {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        textarea {
+            flex: 1;
+            background: #020617;
+            border: 1px solid #334155;
+            border-radius: 4px;
+            padding: 15px;
+            color: #e2e8f0;
+            font-family: inherit;
+            resize: none;
+            height: 80px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--term-green);
+        }
+
+        .send-btn {
+            background: transparent;
+            border: 1px solid var(--term-green);
+            color: var(--term-green);
+            padding: 0 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            background: var(--term-green);
+            color: #000;
+        }
+
+        .print-only-footer {
+            display: none;
+        }
+
+        /* Hacker Loader Style Layers */
+        #hacker-loader {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(3, 7, 18, 0.95);
+            z-index: 99999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--term-green);
+        }
+
+        .loader-terminal {
+            width: 80%;
+            max-width: 650px;
+            background: #020617;
+            border: 2px solid var(--border-glow);
+            border-radius: 6px;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.2);
+            padding: 25px;
+            position: relative;
+        }
+
+        .loader-title {
+            color: #ffffff;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed var(--term-dim);
+            padding-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .loader-logs {
+            height: 120px;
+            overflow: hidden;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+
+        .loader-logs div.active-log {
+            color: var(--term-green);
+        }
+
+        .loader-progress-container {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--term-dim);
+            height: 20px;
+            position: relative;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .loader-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--term-dim), var(--term-green));
+            transition: width 0.1s linear;
+            box-shadow: 0 0 10px var(--term-green);
+        }
+
+        .loader-percentage {
+            position: absolute;
+            right: 0;
+            top: -22px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        /* Mobile Breakpoint Rules Overrides */
+        @media (max-width: 868px) {
+            body:not(.sidebar-closed) aside {
+                transform: translateX(0);
+                width: 290px;
+            }
+
+            body.sidebar-closed aside {
+                transform: translateX(-100%);
+                width: 0px;
+                position: absolute;
+            }
+
+            aside {
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+                transform: translateX(0);
+                transition: transform 0.35s ease-out;
+            }
+
+            .sidebar-toggle {
+                right: -45px;
+                top: 15px;
+            }
+
+            main {
+                padding: 15px;
+                padding-top: 70px;
+                width: 100vw;
+            }
+
+            .hotline-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .capabilities-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .view-title {
+                font-size: 1.6rem;
+                margin-bottom: 20px;
+            }
+
+            .btn-primary {
+                width: 100%;
+                padding: 14px 20px;
+                font-size: 0.95rem;
+            }
+
+            .input-container {
+                flex-direction: column;
+            }
+
+            .send-btn {
+                padding: 12px;
+            }
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        @media print {
+            aside, .btn-primary, .input-container, .sidebar-toggle { display: none !important; }
+            body { background: white !important; color: black !important; }
+            main { padding: 0 !important; width: 100% !important; overflow: visible !important; }
+            .hotline-banner { display: none !important; }
+            .capability-card { border: 1px solid #000 !important; background: transparent !important; color: #000 !important; page-break-inside: avoid;}
+            .capability-card h3, .capability-card p, .capability-card div { color: #000 !important; }
+            
+            .print-only-footer {
+                display: block !important;
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 2px dashed #000;
+                font-family: 'Courier New', monospace;
+                font-size: 10pt;
+                page-break-inside: avoid;
+            }
+            .print-footer-grid {
+                display: flex;
+                justify-content: space-between;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="sidebar-closed">
+
+<!-- Hacker Interactive Loading Screen Component Layer -->
+<div id="hacker-loader">
+    <div class="loader-terminal">
+        <div class="loader-title">☣️ THREAT_MATRIX_ANALYSIS_INITIATED</div>
+        <div class="loader-percentage" id="load-pct">0%</div>
+        <div class="loader-logs" id="loader-log-box"></div>
+        <div class="loader-progress-container">
+            <div class="loader-progress-bar" id="load-bar"></div>
+        </div>
+    </div>
+</div>
+
+<aside>
+    <button class="sidebar-toggle" onclick="App.toggleSidebar()" title="Toggle Menu">☰</button>
+
+    <div class="logo-container">
+        <div class="logo-icon"></div>
+        <h2>CYBERSHIELD<br>ASSIST</h2>
+    </div>
+    <div id="status" class="status">
+        STATUS: <span class="status-online">SYSTEM_ONLINE</span> <span class="status-cursor"></span>
+    </div>
+    
+    <button class="nav-btn active" id="nav-dashboard" onclick="App.navigate('dashboard')">
+        &gt; DASHBOARD
+    </button>
+    <button class="nav-btn" id="nav-interview" onclick="App.navigate('interview')">
+        &gt; INCIDENT_INTERVIEW
+    </button>
+    <button class="nav-btn" id="nav-report" onclick="App.navigate('report')">
+        &gt; RECOVERY_REPORT
+    </button>
+</aside>
+
+<main>
+   <style>
+    /* LED Pulse/Flicker Effect */
+    @keyframes led-flicker {
+        0%, 100% { opacity: 1; text-shadow: 0 0 8px #39ff14; }
+        50% { opacity: 0.4; text-shadow: none; }
+        55% { opacity: 0.8; text-shadow: 0 0 5px #39ff14; }
+        60% { opacity: 0.4; text-shadow: none; }
+    }
+    .k-led {
+        color: #39ff14;
+        font-weight: bold;
+        animation: led-flicker 2s infinite ease-in-out;
+    }
+</style>
+
+<div style="margin-bottom: 20px; padding: 15px; border: 1px solid var(--term-green); background: rgba(57, 255, 20, 0.05);">
+    <h2 style="color: var(--term-green); font-size: 1.1rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">
+        🚨 Operational Situation Analysis
+    </h2>
+    <p style="color: #e2e8f0; font-size: 0.9rem; line-height: 1.4;">
+        System integrity compromised. Use the direct lines below for <span class="k-led">KIP's</span> intervention.
+    </p>
+</div>
+    <div id="comms-banner" class="hotline-banner">
+        <h2>📡 EMERGENCY INCIDENT RESPONDER CONTACTS</h2>
+        <div class="hotline-grid">
+            <div class="hotline-card">
+                <div>📞 PHONE CHANNELS:</div>
+                <strong>+254 741 161 199</strong><br>
+                <strong>+254 701 711 473</strong>
+            </div>
+            <div class="hotline-card">
+                <div>💬 WHATSAPP CHANNELS:</div>
+                <strong>+254 741 161 199</strong><br>
+                <strong>+254 701 711 473</strong>
+            </div>
+        </div>
+    </div>
+
+    <div id="view"></div>
+
+    <div class="print-only-footer">
+        <h3>🚨 INCIDENT RESPONDER DIRECTORY</h3>
+        <p style="margin-bottom: 12px; font-size: 9pt; color: #333;">For escalation workflows, immediate physical data isolation, or critical rollback procedures, contact technical dispatchers:</p>
+        <div class="print-footer-grid">
+            <div>
+                <strong>Voice Comms Line:</strong><br>
+                +254 741 161 199 / +254 701 711 473
+            </div>
+            <div>
+                <strong>WhatsApp secure line:</strong><br>
+                +254 741 161 199 / +254 701 711 473
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+const CONFIG = {
+    API_URL: "https://script.google.com/macros/s/AKfycbxQfQAOC0KdEzorH_14dPP7BKgstwqmIqmzQESw0j2e5NZ61KOcIrvAxsAmsVD4fuCeKQ/exec"
+};
+
+const App = {
+    state: {
+        page: "dashboard",
+        chat: [
+            {
+                role: "user",
+                text: "What are your detailed interests?"
+            },
+            {
+                role: "assistant",
+                text: "Hi. In this green area above the incident interview button, you can see all capabilities listed."
+            }
+        ],
+        report: null
+    },
+
+    toggleSidebar() {
+        document.body.classList.toggle('sidebar-closed');
+    },
+
+    navigate(page) {
+        this.state.page = page;
+        
+        if (window.innerWidth <= 868) {
+            document.body.classList.add('sidebar-closed');
+        }
+
+        const banner = document.getElementById("comms-banner");
+        if(banner) {
+            banner.style.display = (page === "report") ? "none" : "block";
+        }
+
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.getElementById(`nav-${page}`);
+        if(activeBtn) activeBtn.classList.add('active');
+
+        this.render();
+    },
+
+    setStatus(text, type = "online") {
+        let statusClass = "status-online";
+        if (type === "error") statusClass = "status-error";
+        
+        document.getElementById("status").innerHTML = 
+            `STATUS: <span class="${statusClass}">${text}</span> <span class="status-cursor"></span>`;
+    },
+
+    // Matrix style Hacker Sequence Loading Controls
+    // Matrix style Hacker Sequence Loading Controls (Heavy Compute Simulation)
+    showHackerLoader(onCompleteCallback) {
+        const loader = document.getElementById('hacker-loader');
+        const bar = document.getElementById('load-bar');
+        const pct = document.getElementById('load-pct');
+        const logBox = document.getElementById('loader-log-box');
+        
+        loader.style.display = 'flex';
+        bar.style.width = '0%';
+        pct.innerText = '0%';
+        logBox.innerHTML = '';
+
+        const logs = [
+            "Initializing deep kernel trace mechanics...",
+            "Hooking secure interceptors into remote sub-sockets...",
+            "Decrypting structural anomaly packets [RSA-4096]...",
+            "Parsing heuristic threat parameters against cloud index...",
+            "Correlating zero-day signatures across localized telemetry grids...",
+            "Isolating data anomalies and computing vector weights...",
+            "Synthesizing network remediation profiles..."
+        ];
+
+        let currentProgress = 0;
+        let logIndex = 0;
+
+        // Custom step execution worker to simulate a heavy processing load
+        function processNextStep() {
+            // Random increments make it feel like it's grinding on hard tasks
+            let increment = Math.floor(Math.random() * 5) + 2; 
+            
+            // Artificial "bottleneck stalls" at critical processing junctures
+            if ((currentProgress >= 32 && currentProgress <= 36) || 
+                (currentProgress >= 72 && currentProgress <= 76)) {
+                increment = Math.floor(Math.random() * 2); // Barely moving
+            }
+
+            currentProgress += increment;
+
+            if (currentProgress >= 100) {
+                currentProgress = 100;
+                bar.style.width = '100%';
+                pct.innerText = '100%';
+                
+                // Final brief pause for dramatic effect before showing the result
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    onCompleteCallback();
+                }, 600);
+                return;
+            }
+            
+            bar.style.width = currentProgress + '%';
+            pct.innerText = currentProgress + '%';
+
+            // Print logs corresponding to the progress achieved
+            const expectedLogIndex = Math.min(Math.floor((currentProgress / 100) * logs.length), logs.length - 1);
+            if (expectedLogIndex >= logIndex) {
+                for (let i = logIndex; i <= expectedLogIndex; i++) {
+                    const line = document.createElement('div');
+                    line.innerText = `[+] ${logs[i]}`;
+                    line.className = (i === expectedLogIndex) ? 'active-log' : '';
+                    logBox.appendChild(line);
+                }
+                logIndex = expectedLogIndex + 1;
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+
+            // Variable timeouts break the linear speed feel entirely
+            let nextDelay = Math.floor(Math.random() * 120) + 60;
+            if (currentProgress > 30 && currentProgress < 45) nextDelay += 180; // Add extra weight to decryption phase
+            if (currentProgress > 70 && currentProgress < 80) nextDelay += 250; // Add heavy delay to matrix correlation
+
+            setTimeout(processNextStep, nextDelay);
+        }
+
+        // Spin up the engine loop
+        setTimeout(processNextStep, 150);
+    },
+
+    render() {
+        const target = document.getElementById("view");
+        
+        switch (this.state.page) {
+            case "dashboard":
+                target.innerHTML = `
+                    <div class="view-header">#view</div>
+                    <h1 class="view-title">Dashboard</h1>
+                    
+                    <div class="capabilities-grid">
+                        <div class="capability-card">
+                            <div class="card-icon">🧠</div>
+                            <div class="card-content">
+                                <h3>AI_INCIDENT_ASSESSMENT</h3>
+                                <ul>
+                                    <li>Data Ingestion</li>
+                                    <li>Threat Modeling</li>
+                                    <li>Pattern Recognition</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="capability-card">
+                            <div class="card-icon">📈</div>
+                            <div class="card-content">
+                                <h3>RISK_ANALYSIS_A</h3>
+                                <ul>
+                                    <li>Risk Analysis</li>
+                                    <li>Risk Analysis</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="capability-card">
+                            <div class="card-icon">📊</div>
+                            <div class="card-content">
+                                <h3>RISK_ANALYSIS_B</h3>
+                                <ul>
+                                    <li>Risk Analysis</li>
+                                    <li>Metric Analysis</li>
+                                    <li>Recovery Analysis</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="capability-card">
+                            <div class="card-icon">🔄</div>
+                            <div class="card-content">
+                                <h3>RECOVERY_ANALYSIS</h3>
+                                <ul>
+                                    <li>Data Changes</li>
+                                    <li>Recovery Processes</li>
+                                    <li>Recovery Analysis</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-btn-container">
+                        <button class="btn-primary" onclick="App.navigate('interview')">
+                            START_INCIDENT_INTERVIEW
+                        </button>
+                    </div>
+
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-title">Interview</div>
+                            <div class="terminal-controls">⚊ 🗖 ✕</div>
+                        </div>
+                        <div class="terminal-body" style="max-height: 300px; overflow-y: auto;">
+                            ${this.state.chat.map(m => `
+                                <div class="chat-line ${m.role}">
+                                    ${m.role === 'system-error' ? '⚠️ SYSTEM_CRITICAL' : m.role}: ${m.text}
+                                </div>
+                            `).join("")}
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case "interview":
+                target.innerHTML = `
+                    <div class="view-header">#view</div>
+                    <h1 class="view-title">Incident Interview</h1>
+                    
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-title">Active Cyber Assessment Interview</div>
+                            <div class="terminal-controls">⚊ 🗖 ✕</div>
+                        </div>
+                        <div class="terminal-body">
+                            <div id="chat-scroller" style="max-height: 260px; overflow-y: auto; margin-bottom: 20px;">
+                                ${this.state.chat.map(m => `
+                                    <div class="chat-line ${m.role}">
+                                        <strong>${m.role === 'system-error' ? '⚠️ SYSTEM_CRITICAL' : m.role}:</strong> ${m.text}
+                                    </div>
+                                `).join("")}
+                            </div>
+                            
+                            <div class="input-container">
+                                <textarea id="incident" placeholder="Describe the system event or anomaly here..."></textarea>
+                                <button class="send-btn" onclick="Interview.submit()">SEND ANSWER</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                setTimeout(() => {
+                    const scroller = document.getElementById("chat-scroller");
+                    if(scroller) scroller.scrollTop = scroller.scrollHeight;
+                }, 50);
+                break;
+
+            case "report":
+                target.innerHTML = `
+                    <div class="view-header">#view</div>
+                    <h1 class="view-title">Recovery Report</h1>
+                    
+                    <div class="capability-card" style="display: block;">
+                        <h3>Incident Analysis Artifact</h3>
+                        <hr style="border: none; border-top: 1px solid rgba(0,255,204,0.2); margin: 15px 0;">
+                        
+                        ${this.state.report ? `
+                            <p style="margin-bottom: 10px;"><strong>Risk Level:</strong></p>
+                            <p style="color: #ff4b4b; margin-bottom: 20px;">${this.state.report.risk}</p>
+                            
+                            <p style="margin-bottom: 10px;"><strong>Analysis Details:</strong></p>
+                            <p style="color: #94a3b8; margin-bottom: 20px; white-space: pre-wrap;">${this.state.report.analysis}</p>
+                            
+                            <p style="margin-bottom: 10px;"><strong>Mitigation Controls:</strong></p>
+                            <p style="color: var(--term-green); margin-bottom: 25px; white-space: pre-wrap;">${this.state.report.mitigation}</p>
+                            
+                            <button class="btn-primary" onclick="window.print()">PRINT SECURITY REPORT</button>
+                        ` : `
+                            <p style="color: #64748b;">No security matrix generated yet. Complete the incident interview module to synthesize recommendations.</p>
+                        `}
+                    </div>
+                `;
+                break;
+        }
+    }
+};
+
+const Interview = {
+    async submit() {
+        const input = document.getElementById("incident");
+        if (!input) return;
+
+        const summary = input.value.trim();
+        if (summary === "") return;
+
+        App.state.chat.push({ role: "user", text: summary });
+        input.value = "";
+        
+        App.setStatus("ANALYZING INCIDENT...", "online");
+        App.render();
+
+        // Wrap the network call execution in the custom hacker loader workflow animation
+        App.showHackerLoader(async () => {
+            try {
+                const form = new URLSearchParams();
+                form.append("chat", JSON.stringify(App.state.chat));
+
+
+const response = await fetch(CONFIG.API_URL, {
+    method: "POST",
+    body: form
+});
+
+                const textData = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(textData);
+                } catch(e) {
+                    throw new Error(textData || "Invalid server response layout.");
+                }
+                console.log(result);
+
+                if (!response.ok || (result && result.error)) {
+                    let msg = result?.error?.message || "HTTP Connection Failure Context.";
+                    if(msg.includes("quota")) {
+                        msg = "Gemini API daily token usage metrics exhausted (429 Quota Limit reached). Please reset or transition plans.";
+                    }
+                    throw new Error(msg);
+                }
+
+                if (result.complete) {
+                    App.state.chat.push({ role: "assistant", text: result.analysis });
+                    App.state.report = {
+                        risk: result.risk,
+                        analysis: result.analysis,
+                        mitigation: result.mitigation
+                    };
+                    App.setStatus("INTERVIEW COMPLETE", "online");
+                    App.navigate("report");
+                } else {
+                    App.state.chat.push({ role: "assistant", text: result.question });
+                    App.setStatus("SYSTEM_ONLINE", "online");
+                    App.render();
+                }
+            } catch (err) {
+                console.error(err);
+                App.setStatus("QUOTA_EXHAUSTED", "error");
+                App.state.chat.push({ 
+                    role: "system-error", 
+                    text: err.message + " Verification needed. Direct support channel routes operational via response cards." 
+                });
+                App.render();
+            }
+        });
+    }
+};
+
+App.render();
+</script>
+</body>
+</html>
